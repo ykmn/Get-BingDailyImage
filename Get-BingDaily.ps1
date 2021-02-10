@@ -6,6 +6,7 @@
     Download latest Bing Daily Images for different locales in maximum resolution:
     if image is not exist in top resolution we're saving previous resolution.
     Images are unique i.e. if the same image exists in different locales we're saving only one.
+    Files will be saved in ~/Pictures/Bing Daily Images
 
 .LINK
     https://github.com/ykmn/Get-BingDaily
@@ -20,7 +21,7 @@ v1.00 2021-02-09 Initial release
 
 $ErrorActionPreference = 'SilentlyContinue'
 # Check if download folder exists and otherwise create it
-[string]$downloadFolder = "$([Environment]::GetFolderPath("MyPictures"))\Bing Wallpapers"
+[string]$downloadFolder = Join-Path -Path "$([Environment]::GetFolderPath("MyPictures"))" -ChildPath "Bing Daily Images"
 #[string]$downloadFolder = $PSScriptRoot
 if (!(Test-Path $downloadFolder)) {
     New-Item -ItemType Directory $downloadFolder
@@ -83,14 +84,13 @@ Write-Host "`nFound unique images:" -ForegroundColor Yellow
 $items | Format-Table
 #>
 
-Write-Host "Downloading:"
+Write-Host "`nDownloading:" -ForegroundColor Yellow
 $client = New-Object System.Net.WebClient
 foreach ($item in $items) {
     $baseDate = $item.date.ToString("yyyy-MM-dd")
     $baseName = $item.imageUrlBase
     $url = $item.url
-    $destination = "$downloadFolder\Bing Daily $baseDate $baseName.jpg"
-    #$destination = "D:\Bing Daily $baseDate $Locale $baseName.jpg"
+    $destination = Join-Path -Path "$downloadFolder" -ChildPath "Bing Daily $baseDate $baseName.jpg"
     Write-Host $baseDate : $url
     # Download the enclosure if we haven't done so already
     if (!(Test-Path $destination)) {
