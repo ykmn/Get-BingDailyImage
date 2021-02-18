@@ -39,26 +39,18 @@ $Locales = @(
 # Currently only the values 'de-DE', 'en-AU', 'en-CA', 'en-GB', 'en-IN', 'en-US', 'fr-CA', 'fr-FR', 'ja-JP', 'zh-CN'
 # will have their own localized version. Other values will be considered as the "Rest of the World" by Bing.
 #>
-
     'de-DE', 'en-AU', 'en-CA', 'en-GB', 'en-IN', 'en-US', 'fr-CA', 'fr-FR', 'ja-JP', 'zh-CN'
 );
 
 [string]$hostname = "https://www.bing.com"
-# Download the latest $files wallpapers
-[int]$files = 1
-# Max item count: the number of images we'll query for
-[int]$maxItemCount = [System.Math]::max(1, [System.Math]::max($files, 8))
-# Available resolutions of the image to download:
-# '1024x768', '1280x720', '1366x768', '1920x1080', '1920x1200'
-$maxItemCount
 $resolutions = @( '1920x1080', '1920x1200' )
 
-Write-Host "Processing: " -NoNewline -ForegroundColor Yellow
+Write-Host "Processing locales: " -NoNewline -ForegroundColor Yellow
 $items = New-Object System.Collections.ArrayList
 
 foreach ($locale in $Locales) {
     Write-Host [$locale"] " -NoNewline
-    [string]$uri = "$hostname/HPImageArchive.aspx?format=xml&idx=0&n=$maxItemCount&mkt=$locale"
+    [string]$uri = "$hostname/HPImageArchive.aspx?format=xml&idx=0&n=8&mkt=$locale"
     $request = Invoke-WebRequest -Uri $uri
     [xml]$content = $request.Content
 
@@ -84,7 +76,7 @@ foreach ($locale in $Locales) {
 
 $items = $($items | Sort-Object -Unique -Property imageUrlBase)
 <#
-Write-Host "`nFound unique images:" -ForegroundColor Yellow
+Write-Host "`nUnique images:" -ForegroundColor Yellow
 $items | Format-Table
 #>
 
@@ -102,3 +94,6 @@ foreach ($item in $items) {
     $client.DownloadFile($url, "$destination")
     }
 }
+
+Write-Host "`nAll done."
+Start-Sleep -Seconds 5
