@@ -26,6 +26,7 @@ $ErrorActionPreference = 'SilentlyContinue'
 [string]$downloadFolder = Join-Path -Path "$([Environment]::GetFolderPath("MyPictures"))" -ChildPath "Bing Daily Images"
 #[string]$downloadFolder = $PSScriptRoot
 if (!(Test-Path $downloadFolder)) {
+    Write-Host "No download folder found. Creating: " -ForegroundColor Yellow
     New-Item -ItemType Directory $downloadFolder
 }
 
@@ -44,9 +45,12 @@ will have their own localized version. Other values will be considered as the "R
 );
 
 [string]$hostname = "https://www.bing.com"
+
+#$resolutions = @( '1920x1080' ) # FullHD
+#$resolutions = @( '1080x1920' ) # vertical
 $resolutions = @( '1920x1080', '1920x1200' )
 
-Write-Host "Processing locales: " -NoNewline -ForegroundColor Yellow
+Write-Host "Processing locales online: " -NoNewline -ForegroundColor Yellow
 $items = New-Object System.Collections.ArrayList
 foreach ($locale in $Locales) {
     Write-Host [$locale"] " -NoNewline
@@ -91,11 +95,12 @@ $files | Sort-Object -Unique -Property id
 Write-Host "`nUnique existing files:" -ForegroundColor Yellow
 $files | Format-Table
 #>
-$c = Compare-Object -ReferenceObject $items -DifferenceObject $files -Property id -PassThru 
-<#
-Write-Host "`nComparison:" -ForegroundColor Yellow
+
+
+Write-Host "`nComparison local and online images:" -ForegroundColor Yellow
+$c = Compare-Object -ReferenceObject $items -DifferenceObject $files -Property id -PassThru
 $c | Format-Table
-#>
+
 
 Write-Host "`nDownloading:" -ForegroundColor Yellow
 $client = New-Object System.Net.WebClient
