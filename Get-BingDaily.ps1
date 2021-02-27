@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Download latest Bing Daily Images for different locales in maximum resolution:
-    if image is not exist in top resolution we're saving previous resolution.
+    if image is not exist in top resolution we're saving previous resolution from the list.
     Images are unique i.e. if the same image exists in different locales we're saving only one.
     Files will be saved in ~/Pictures/Bing Daily Images
 
@@ -96,25 +96,24 @@ Write-Host "`nUnique existing files:" -ForegroundColor Yellow
 $files | Format-Table
 #>
 
-
 Write-Host "`nComparison local and online images:" -ForegroundColor Yellow
 $c = Compare-Object -ReferenceObject $items -DifferenceObject $files -Property id -PassThru
 $c | Format-Table
-
 
 Write-Host "`nDownloading:" -ForegroundColor Yellow
 $client = New-Object System.Net.WebClient
 foreach ($cc in $c)  {
     if ($cc.SideIndicator -eq "<=") {
-        $baseDate = $cc.url.ToString("yyyy-MM-dd")
+        $baseDate = $cc.date.ToString("yyyy-MM-dd")
         $baseName = $cc.id
         $url = $cc.url
         $destination = Join-Path -Path "$downloadFolder" -ChildPath "Bing Daily $baseDate $baseName.jpg"
-        Write-Host $baseDate : $url with BASENAME $baseName to $destination
+        #Write-Host $baseDate : $url with BASENAME $baseName to $destination
+        Write-Host $baseDate : $url "->" $destination
         #Write-Host "Downloading image to $destination"
         $client.DownloadFile($url, "$destination")
     }
 }
 Write-Host "`nAll done."
-Start-Sleep -Seconds 5
+Start-Sleep -Seconds 3
 break
