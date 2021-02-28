@@ -41,7 +41,7 @@ $Locales = @(
 Currently only the values 'de-DE', 'en-AU', 'en-CA', 'en-GB', 'en-IN', 'en-US', 'fr-CA', 'fr-FR', 'ja-JP', 'zh-CN'
 will have their own localized version. Other values will be considered as the "Rest of the World" by Bing.
 #>
-    'de-DE', 'en-AU', 'en-CA', 'en-GB', 'en-IN', 'en-US', 'fr-CA', 'fr-FR', 'ja-JP', 'zh-CN'
+    'de-DE', 'en-AU', 'en-CA', 'en-GB', 'en-IN', 'en-US', 'fr-CA', 'fr-FR', 'ja-JP', 'zh-CN', 'ru-RU'
 );
 
 [string]$hostname = "https://www.bing.com"
@@ -63,6 +63,7 @@ foreach ($locale in $Locales) {
             [datetime]$imageDate = [datetime]::ParseExact($xmlImage.startdate, 'yyyyMMdd', $null)
             [string]$imageUrl = "$hostname$($xmlImage.urlBase)_$resolution.jpg"
             [string]$imageUrlBase = $xmlImage.urlBase
+            [string]$imageCopyright = $xmlImage.copyright
             # Add item to our array list
             $item = New-Object System.Object
             $item | Add-Member -Type NoteProperty -Name date -Value $imageDate
@@ -73,12 +74,14 @@ foreach ($locale in $Locales) {
             $imageUrlBase = $imageUrlBase -replace "ROW",""
             $imageUrlBase = $imageUrlBase -replace "_\d{8,12}.",""
             $item | Add-Member -Type NoteProperty -Name id -Value $imageUrlBase
+            $item | Add-Member -Type NoteProperty -Name copyright -Value $imageCopyright
+            
             $null = $items.Add($item)
         }
     }
 }
 $items = $($items | Sort-Object -Unique -Property id)
-Write-Host "`nUnique images found in all locales:" -ForegroundColor Yellow
+Write-Host "`nUnique images in all locales:" -ForegroundColor Yellow
 $items | Format-Table
 
 $files = New-Object System.Collections.ArrayList
@@ -109,7 +112,9 @@ foreach ($cc in $c)  {
         $url = $cc.url
         $destination = Join-Path -Path "$downloadFolder" -ChildPath "Bing Daily $baseDate $baseName.jpg"
         #Write-Host $baseDate : $url with BASENAME $baseName to $destination
-        Write-Host $baseDate : $url "->" $destination
+        Write-Host $baseDate : $url
+        Write-Host "->" $destination
+        Write-Host $cc.copyright "`n"
         #Write-Host "Downloading image to $destination"
         $client.DownloadFile($url, "$destination")
     }
