@@ -26,31 +26,27 @@ $ErrorActionPreference = 'SilentlyContinue'
 [string]$downloadFolder = Join-Path -Path "$([Environment]::GetFolderPath("MyPictures"))" -ChildPath "Bing Daily Images"
 #[string]$downloadFolder = $PSScriptRoot
 if (!(Test-Path $downloadFolder)) {
-    Write-Host "No download folder found. Creating: " -ForegroundColor Yellow
     New-Item -ItemType Directory $downloadFolder
 }
 
 $Locales = @(
 <# Available locales are:
-    'ar-XA', 'bg-BG', 'cs-CZ', 'da-DK', 'de-AT', 'de-CH', 'de-DE', 'el-GR', 'en-AU', 'en-CA',
-    'en-GB', 'en-ID', 'en-IE', 'en-IN', 'en-MY', 'en-NZ', 'en-PH', 'en-SG', 'en-XA',
-    'en-ZA', 'es-AR', 'es-CL', 'es-ES', 'es-MX', 'es-US', 'es-XL', 'et-EE', 'fi-FI', 'fr-BE',
-    'fr-CA', 'fr-CH', 'fr-FR', 'he-IL', 'hr-HR', 'hu-HU', 'it-IT', 'ja-JP', 'ko-KR', 'lt-LT',
-    'lv-LV', 'nb-NO', 'nl-BE', 'nl-NL', 'pl-PL', 'pt-BR', 'pt-PT', 'ro-RO', 'ru-RU', 'sk-SK',
-    'sl-SL', 'sv-SE', 'th-TH', 'tr-TR', 'uk-UA', 'zh-CN', 'zh-HK', 'zh-TW', 'en-US' 
-Currently only the values 'de-DE', 'en-AU', 'en-CA', 'en-GB', 'en-IN', 'en-US', 'fr-CA', 'fr-FR', 'ja-JP', 'zh-CN'
-will have their own localized version. Other values will be considered as the "Rest of the World" by Bing.
+#    'ar-XA', 'bg-BG', 'cs-CZ', 'da-DK', 'de-AT', 'de-CH', 'de-DE', 'el-GR', 'en-AU', 'en-CA',
+#    'en-GB', 'en-ID', 'en-IE', 'en-IN', 'en-MY', 'en-NZ', 'en-PH', 'en-SG', 'en-XA',
+#    'en-ZA', 'es-AR', 'es-CL', 'es-ES', 'es-MX', 'es-US', 'es-XL', 'et-EE', 'fi-FI', 'fr-BE',
+#    'fr-CA', 'fr-CH', 'fr-FR', 'he-IL', 'hr-HR', 'hu-HU', 'it-IT', 'ja-JP', 'ko-KR', 'lt-LT',
+#    'lv-LV', 'nb-NO', 'nl-BE', 'nl-NL', 'pl-PL', 'pt-BR', 'pt-PT', 'ro-RO', 'ru-RU', 'sk-SK',
+#    'sl-SL', 'sv-SE', 'th-TH', 'tr-TR', 'uk-UA', 'zh-CN', 'zh-HK', 'zh-TW', 'en-US' 
+# Currently only the values 'de-DE', 'en-AU', 'en-CA', 'en-GB', 'en-IN', 'en-US', 'fr-CA', 'fr-FR', 'ja-JP', 'zh-CN'
+# will have their own localized version. Other values will be considered as the "Rest of the World" by Bing.
 #>
     'de-DE', 'en-AU', 'en-CA', 'en-GB', 'en-IN', 'en-US', 'fr-CA', 'fr-FR', 'ja-JP', 'zh-CN', 'ru-RU'
 );
 
 [string]$hostname = "https://www.bing.com"
+$resolutions = @( '1920x1200','1920x1080' )
 
-#$resolutions = @( '1920x1080' ) # FullHD
-#$resolutions = @( '1080x1920' ) # vertical
-$resolutions = @( '1920x1080', '1920x1200' )
-
-Write-Host "Processing locales online: " -NoNewline -ForegroundColor Yellow
+Write-Host "Processing locales: " -NoNewline -ForegroundColor Yellow
 $items = New-Object System.Collections.ArrayList
 foreach ($locale in $Locales) {
     Write-Host [$locale"] " -NoNewline
@@ -81,7 +77,7 @@ foreach ($locale in $Locales) {
     }
 }
 $items = $($items | Sort-Object -Unique -Property id)
-Write-Host "`nUnique images in all locales:" -ForegroundColor Yellow
+Write-Host "`nUnique images:" -ForegroundColor Yellow
 $items | Format-Table
 
 $files = New-Object System.Collections.ArrayList
@@ -98,25 +94,21 @@ $files | Sort-Object -Unique -Property id
 Write-Host "`nUnique existing files:" -ForegroundColor Yellow
 $files | Format-Table
 #>
-
-Write-Host "`nComparison local and online images:" -ForegroundColor Yellow
-$c = Compare-Object -ReferenceObject $items -DifferenceObject $files -Property id -PassThru
+$c = Compare-Object -ReferenceObject $items -DifferenceObject $files -Property id -PassThru 
+Write-Host "`nComparison:" -ForegroundColor Yellow
 $c | Format-Table
 
 Write-Host "`nDownloading:" -ForegroundColor Yellow
-$client = New-Object System.Net.WebClient
 foreach ($cc in $c)  {
     if ($cc.SideIndicator -eq "<=") {
+        $client = New-Object System.Net.WebClient
         $baseDate = $cc.date.ToString("yyyy-MM-dd")
         $baseName = $cc.id
-        $url = $cc.url
         $destination = Join-Path -Path "$downloadFolder" -ChildPath "Bing Daily $baseDate $baseName.jpg"
-        #Write-Host $baseDate : $url with BASENAME $baseName to $destination
-        Write-Host $baseDate : $url
-        Write-Host "->" $destination
-        Write-Host $cc.copyright "`n"
-        #Write-Host "Downloading image to $destination"
-        $client.DownloadFile($url, "$destination")
+        Write-Host $baseDate : $cc.url
+        Write-Host $baseDate - $baseName - $destination
+        Write-Host "Downloading image to $destination"
+        $client.DownloadFile($cc.url, "$destination")
     }
 }
 Write-Host "`nAll done."
