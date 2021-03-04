@@ -121,10 +121,10 @@ for ($num = 1 ; $num -le $loop ; $num++) {
 }
 
 $items = $($items | Sort-Object -Unique -Property id,size)
-Write-Host "`nGathered" $items.Count "images total." -ForegroundColor Yellow
+Write-Host "`nGathered total" $items.Count "images online." -ForegroundColor Yellow
 # $items | Format-Table
 
-
+Clear-Variable $files
 $files = New-Object System.Collections.ArrayList
 foreach ($jpgFile in (Get-ChildItem -Path $downloadFolder)) {
     #[string]$name = $jpgFile.Name -replace "Spotlight\ Daily\ \d{4}\-\d{2}\-\d{2}\ ",""
@@ -138,14 +138,14 @@ foreach ($jpgFile in (Get-ChildItem -Path $downloadFolder)) {
     $null = $files.Add($file)
 }
 $files = $($files | Sort-Object -Unique -Property id)
-
+Write-Host "`nFound" $files.Count "local images." -ForegroundColor Yellow
 
 Write-Host "`nComparison local and online images." -ForegroundColor Yellow
 $c = Compare-Object -ReferenceObject $items -DifferenceObject $files -Property id -PassThru
 #$c | Format-Table
 
-
 Write-Host "`nDownloading new images:" -ForegroundColor Yellow
+$wb = New-Object System.Net.WebClient
 foreach ($cc in $c)  {
     if ($cc.SideIndicator -eq "<=") {
         #$baseDate = $_.date.ToString("yyyy-MM-dd")
@@ -174,16 +174,6 @@ Write-Host "`n`nCleaning up duplicates." -ForegroundColor Yellow
 # https://sid-500.com/2020/04/26/find-duplicate-files-with-powershell/
 ############# Find Duplicate Files based on Hash Value ###############
 Write-Host "Searching for duplicates, please wait: " -NoNewline
-
-<#
-Get-ChildItem -Path $downloadFolder -File -Recurse | `
-		Get-FileHash -Algorithm MD5 | `
-		Group-Object -Property Hash | `
-		Where-Object Count -GT 1 | ForEach-Object { $_.Group | Select-Object -skip 1 | Remove-Item -WhatIf -Verbose -Recurse }
-#>
-
-
-
 $duplicates = Get-ChildItem -Path $downloadFolder -File -Recurse | `
 		Get-FileHash -Algorithm MD5 | `
 		Group-Object -Property Hash | `
