@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Download latest Bing Daily Images for different locales in maximum resolution:
-    if image is not exist in top resolution we're saving previous resolution.
+    if image is not exist in top resolution we're saving previous resolution from the list.
     Images are unique i.e. if the same image exists in different locales we're saving only one.
     Files will be saved in ~/Pictures/Bing Daily Images
 
@@ -40,7 +40,7 @@ $Locales = @(
 # Currently only the values 'de-DE', 'en-AU', 'en-CA', 'en-GB', 'en-IN', 'en-US', 'fr-CA', 'fr-FR', 'ja-JP', 'zh-CN'
 # will have their own localized version. Other values will be considered as the "Rest of the World" by Bing.
 #>
-    'de-DE', 'en-AU', 'en-CA', 'en-GB', 'en-IN', 'en-US', 'fr-CA', 'fr-FR', 'ja-JP', 'zh-CN'
+    'de-DE', 'en-AU', 'en-CA', 'en-GB', 'en-IN', 'en-US', 'fr-CA', 'fr-FR', 'ja-JP', 'zh-CN', 'ru-RU'
 );
 
 [string]$hostname = "https://www.bing.com"
@@ -59,6 +59,7 @@ foreach ($locale in $Locales) {
             [datetime]$imageDate = [datetime]::ParseExact($xmlImage.startdate, 'yyyyMMdd', $null)
             [string]$imageUrl = "$hostname$($xmlImage.urlBase)_$resolution.jpg"
             [string]$imageUrlBase = $xmlImage.urlBase
+            [string]$imageCopyright = $xmlImage.copyright
             # Add item to our array list
             $item = New-Object System.Object
             $item | Add-Member -Type NoteProperty -Name date -Value $imageDate
@@ -69,6 +70,8 @@ foreach ($locale in $Locales) {
             $imageUrlBase = $imageUrlBase -replace "ROW",""
             $imageUrlBase = $imageUrlBase -replace "_\d{8,12}.",""
             $item | Add-Member -Type NoteProperty -Name id -Value $imageUrlBase
+            $item | Add-Member -Type NoteProperty -Name copyright -Value $imageCopyright
+            
             $null = $items.Add($item)
         }
     }
@@ -109,5 +112,5 @@ foreach ($cc in $c)  {
     }
 }
 Write-Host "`nAll done."
-Start-Sleep -Seconds 5
+Start-Sleep -Seconds 3
 break
