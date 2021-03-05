@@ -33,11 +33,13 @@ if (!(Test-Path $downloadFolder)) {
 }
 
 $Locales = @(
-<# Available locales are:
+<#
 Currently only the values 'de-DE', 'en-AU', 'en-CA', 'en-GB', 'en-IN', 'en-US', 'fr-CA', 'fr-FR', 'ja-JP', 'zh-CN'
-will have their own localized version. Other values will be considered as the "Rest of the World" by Bing.
+will have their own localized version. Other values will be considered by Bing as the "Rest of the World".
 #>
-<#'ar-XA', 'bg-BG', 'cs-CZ', 'da-DK', 'de-AT', 'de-CH', 'de-DE', 'el-GR', 'en-AU', 'en-CA',
+<#
+Available locales are:
+'ar-XA', 'bg-BG', 'cs-CZ', 'da-DK', 'de-AT', 'de-CH', 'de-DE', 'el-GR', 'en-AU', 'en-CA',
 'en-GB', 'en-ID', 'en-IE', 'en-IN', 'en-MY', 'en-NZ', 'en-PH', 'en-SG', 'en-XA',
 'en-ZA', 'es-AR', 'es-CL', 'es-ES', 'es-MX', 'es-US', 'es-XL', 'et-EE', 'fi-FI', 'fr-BE',
 'fr-CA', 'fr-CH', 'fr-FR', 'he-IL', 'hr-HR', 'hu-HU', 'it-IT', 'ja-JP', 'ko-KR', 'lt-LT',
@@ -45,10 +47,9 @@ will have their own localized version. Other values will be considered as the "R
 'sl-SL', 'sv-SE', 'th-TH', 'tr-TR', 'uk-UA', 'zh-CN', 'zh-HK', 'zh-TW', 'en-US' 
 #>
 'de-DE', 'en-AU', 'fr-CA', 'en-GB', 'en-IN', 'en-US', 'fr-FR', 'ja-JP', 'zh-CN', 'ru-RU', 'tr-TR'
-# 'ru-RU'
 );
 
-$loop = 9 # download locales set 10 times
+$loop = 9 # download locales set 9 times
 #[Console]::OutputEncoding = [System.Text.Encoding]::GetEncoding("utf-8")
 #[System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::UTF8
 #$OutputEncoding = [Console]::OutputEncoding = New-Object System.Text.Utf8Encoding
@@ -75,7 +76,7 @@ for ($num = 1 ; $num -le $loop ; $num++) {
 		Write-Host [$locale"] " -NoNewline
 		# sample url: https://arc.msn.com/v3/Delivery/Placement?pid=209567&fmt=json&rafb=0&ua=WindowsShellClient%2F0&cdm=1&disphorzres=9999&dispvertres=9999&lo=80217&&lc=eu-US&ctry=US
 		[string]$uri = "https://arc.msn.com/v3/Delivery/Placement?pid=209567&fmt=json&rafb=0&ua=WindowsShellClient%2F0&cdm=1&disphorzres=9999&dispvertres=9999&lo=80217&&lc="+$locale+"&ctry="+$(($locale -split '-')[1])
-		# there's a bug with website: it sends unicode as ISO-8859-1
+		# whoa, there's a bug with website: it sends unicode as ISO-8859-1
 		$wb = New-Object System.Net.WebClient -Property @{Encoding = [System.Text.Encoding]::UTF8}
 		$wb.Headers.Add("Content-Type","application/json;charset=utf-8")
 		$jsonfile = $wb.DownloadString($uri) | ConvertFrom-Json
@@ -142,7 +143,7 @@ Write-Host "`nFound" $files.Count "local images." -ForegroundColor Yellow
 
 Write-Host "`nComparison local and online images." -ForegroundColor Yellow
 $c = Compare-Object -ReferenceObject $items -DifferenceObject $files -Property id -PassThru
-#$c | Format-Table
+Write-Debug $c | Format-Table
 
 Write-Host "`nDownloading new images:" -ForegroundColor Yellow
 $wb = New-Object System.Net.WebClient
@@ -162,10 +163,6 @@ foreach ($cc in $c)  {
         Write-Host "#" -NoNewline
     }
 }
-
-
-
-
 
 
 Write-Host "`n`nCleaning up duplicates." -ForegroundColor Yellow
