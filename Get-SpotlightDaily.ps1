@@ -70,7 +70,7 @@ Write-Host "Processing online locales: " -ForegroundColor Yellow
 $items = New-Object System.Collections.ArrayList
 
 for ($num = 1 ; $num -le $loop ; $num++) {
-	Write-Host "Pass $num`: " -NoNewline
+	Write-Host "Pass $num of $loop`: " -NoNewline
 	foreach ($locale in $Locales) {
 		Write-Host [$locale"] " -NoNewline
 		# sample url: https://arc.msn.com/v3/Delivery/Placement?pid=209567&fmt=json&rafb=0&ua=WindowsShellClient%2F0&cdm=1&disphorzres=9999&dispvertres=9999&lo=80217&&lc=eu-US&ctry=US
