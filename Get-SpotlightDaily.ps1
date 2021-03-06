@@ -147,6 +147,7 @@ Write-Debug $c | Format-Table
 
 Write-Host "`nDownloading new images:" -ForegroundColor Yellow
 $wb = New-Object System.Net.WebClient
+Clear-Variable $i; $i=0
 foreach ($cc in $c)  {
     if ($cc.SideIndicator -eq "<=") {
         #$baseDate = $_.date.ToString("yyyy-MM-dd")
@@ -160,10 +161,11 @@ foreach ($cc in $c)  {
             $destination = Join-Path -Path "$downloadFolder" -ChildPath "$id $title ($($cc.size)).jpg"
         }
         $wb.DownloadFile($url, "$destination")
+		$i = $i+1
         Write-Host "#" -NoNewline
     }
 }
-
+Write-Host "`nDownloaded $i images."
 
 Write-Host "`n`nCleaning up duplicates." -ForegroundColor Yellow
 # .NOTES
