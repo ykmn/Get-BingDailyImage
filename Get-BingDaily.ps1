@@ -44,7 +44,7 @@ $Locales = @(
 );
 
 [string]$hostname = "https://www.bing.com"
-$resolutions = @( '1920x1080' )
+$resolutions = @( '1920x1200', '1920x1080' )
 
 Write-Host "Processing locales: " -NoNewline -ForegroundColor Yellow
 $items = New-Object System.Collections.ArrayList

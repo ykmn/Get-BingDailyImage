@@ -52,7 +52,7 @@ will have their own localized version. Other values will be considered by Bing a
 #>
 );
 
-$loop = 9 # download locales set 9 times
+$loop = 29 # download locales set 29 times
 #[Console]::OutputEncoding = [System.Text.Encoding]::GetEncoding("utf-8")
 #[System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::UTF8
 #$OutputEncoding = [Console]::OutputEncoding = New-Object System.Text.Utf8Encoding
